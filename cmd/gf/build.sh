@@ -1,0 +1,1 @@
+gf build main.go -n gfv2 -a amd64 -s linux,windows,darwin
