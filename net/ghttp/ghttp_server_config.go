@@ -28,10 +28,10 @@ import (
 const (
 	defaultHttpAddr  = ":80"  // Default listening port for HTTP.
 	defaultHttpsAddr = ":443" // Default listening port for HTTPS.
-	UriTypeDefault   = 0      // Method names to URI converting type, which converts name to its lower case and joins the words using char '-'.
-	UriTypeFullName  = 1      // Method names to URI converting type, which does no converting to the method name.
-	UriTypeAllLower  = 2      // Method names to URI converting type, which converts name to its lower case.
-	UriTypeCamel     = 3      // Method names to URI converting type, which converts name to its camel case.
+	UriTypeDefault   = 0      // Method names to the URI converting type, which converts name to its lower case and joins the words using char '-'.
+	UriTypeFullName  = 1      // Method names to the URI converting type, which does not convert to the method name.
+	UriTypeAllLower  = 2      // Method names to the URI converting type, which converts name to its lower case.
+	UriTypeCamel     = 3      // Method names to the URI converting type, which converts name to its camel case.
 )
 
 // ServerConfig is the HTTP Server configuration manager.
@@ -329,14 +329,18 @@ func (s *Server) SetConfigWithMap(m map[string]interface{}) error {
 // SetConfig sets the configuration for the server.
 func (s *Server) SetConfig(c ServerConfig) error {
 	s.config = c
-	// Address, check and use a random free port.
+	// Automatically add ':' prefix for address if it is missed.
+	if s.config.Address != "" && !gstr.HasPrefix(s.config.Address, ":") {
+		s.config.Address = ":" + s.config.Address
+	}
+	// It checks and uses a random free port.
 	array := gstr.Split(s.config.Address, ":")
 	if s.config.Address == "" || len(array) < 2 || array[1] == "0" {
 		s.config.Address = gstr.Join([]string{
 			array[0], gconv.String(gtcp.MustGetFreePort()),
 		}, ":")
 	}
-	// Static.
+	// Static files root.
 	if c.ServerRoot != "" {
 		s.SetServerRoot(c.ServerRoot)
 	}
